@@ -69,6 +69,48 @@ public class DependencyComputerTest extends AbstractTychoMojoTestCase {
         Assert.assertTrue(dependencies.get(2).rules.isEmpty());
     }
 
+//    @Test
+//    public void testCategoryWithBundle() throws Exception {
+//        File basedir = getBasedir("projects/categoryWithBundle");
+//        EquinoxResolver resolver = lookup(EquinoxResolver.class);
+//
+//        Map<File, MavenProject> basedirMap = MavenSessionUtils.getBasedirMap(getSortedProjects(basedir, null));
+//
+//        MavenProject project = basedirMap.get(new File(basedir, "specificVersion"));
+//        DependencyArtifacts platform = (DependencyArtifacts) project
+//                .getContextValue(TychoConstants.CTX_DEPENDENCY_ARTIFACTS);
+//
+//        TychoProject bundleProject = lookup(TychoProject.class, ArtifactKey.TYPE_ECLIPSE_REPOSITORY);
+//
+//        State state = resolver.newResolvedState(project, bundleProject.getExecutionEnvironment(project), platform);
+//        BundleDescription bundle = state.getBundleByLocation(project.getBasedir().getCanonicalPath());
+//
+//        List<DependencyEntry> dependencies = dependencyComputer.computeDependencies(state.getStateHelper(), bundle);
+//        Assert.assertEquals(1, dependencies.size());
+//        Assert.assertEquals("org.eclipse.osgi", dependencies.get(0).desc.getSymbolicName());
+//    }
+//
+//    @Test
+//    public void testCategoryWithBundleWildcard() throws Exception {
+//        File basedir = getBasedir("projects/categoryWithBundle");
+//        EquinoxResolver resolver = lookup(EquinoxResolver.class);
+//
+//        Map<File, MavenProject> basedirMap = MavenSessionUtils.getBasedirMap(getSortedProjects(basedir, null));
+//
+//        MavenProject project = basedirMap.get(new File(basedir, "wildcardVersion"));
+//        DependencyArtifacts platform = (DependencyArtifacts) project
+//                .getContextValue(TychoConstants.CTX_DEPENDENCY_ARTIFACTS);
+//
+//        TychoProject bundleProject = lookup(TychoProject.class, ArtifactKey.TYPE_ECLIPSE_REPOSITORY);
+//
+//        State state = resolver.newResolvedState(project, bundleProject.getExecutionEnvironment(project), platform);
+//        BundleDescription bundle = state.getBundleByLocation(project.getBasedir().getCanonicalPath());
+//
+//        List<DependencyEntry> dependencies = dependencyComputer.computeDependencies(state.getStateHelper(), bundle);
+//        Assert.assertEquals(1, dependencies.size());
+//        Assert.assertEquals("org.eclipse.osgi", dependencies.get(0).desc.getSymbolicName());
+//    }
+
     @Test
     public void testTYCHO0378unwantedSelfDependency() throws Exception {
         File basedir = getBasedir("projects/TYCHO0378unwantedSelfDependency");
