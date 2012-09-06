@@ -67,6 +67,7 @@ import org.eclipse.tycho.core.resolver.shared.OptionalResolutionAction;
 import org.eclipse.tycho.core.utils.PlatformPropertiesUtils;
 import org.eclipse.tycho.core.utils.TychoProjectUtils;
 import org.eclipse.tycho.launching.LaunchConfiguration;
+import org.eclipse.tycho.resolver.TychoDependencyResolver;
 import org.osgi.framework.Version;
 
 /**
@@ -337,6 +338,11 @@ public class TestMojo extends AbstractMojo {
     private DefaultTargetPlatformResolverFactory targetPlatformResolverLocator;
 
     /**
+     * @component
+     */
+    private TychoDependencyResolver dependencyResolver;
+
+    /**
      * @component role="org.eclipse.tycho.core.TychoProject"
      */
     private Map<String, TychoProject> projectTypes;
@@ -361,25 +367,9 @@ public class TestMojo extends AbstractMojo {
             return;
         }
 
-        if (!"eclipse-test-plugin".equals(project.getPackaging())) {
-            getLog().warn("Unsupported packaging type " + project.getPackaging());
-            return;
-        }
-
         if (testSuite != null || testClass != null) {
             if (testSuite == null || testClass == null) {
                 throw new MojoExecutionException("Both testSuite and testClass must be provided or both should be null");
-            }
-
-            MavenProject suite = getTestSuite(testSuite);
-
-            if (suite == null) {
-                throw new MojoExecutionException("Cannot find test suite project with Bundle-SymbolicName " + testSuite);
-            }
-
-            if (!suite.equals(project)) {
-                getLog().info("Not executing tests, testSuite=" + testSuite + " and project is not the testSuite");
-                return;
             }
         }
 
@@ -389,17 +379,18 @@ public class TestMojo extends AbstractMojo {
 
     private EquinoxInstallation createEclipseInstallation(List<ReactorProject> reactorProjects)
             throws MojoExecutionException {
+        this.dependencyResolver.setupProject(session, project, DefaultReactorProject.adapt(project), false);
         TargetPlatformResolver platformResolver = targetPlatformResolverLocator.lookupPlatformResolver(project);
 
-        TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
-
         final ArrayList<Dependency> dependencies = new ArrayList<Dependency>();
-
         if (this.dependencies != null) {
             dependencies.addAll(Arrays.asList(this.dependencies));
         }
 
-        dependencies.addAll(configuration.getDependencyResolverConfiguration().getExtraRequirements());
+        if (project.getContextValue(TychoConstants.CTX_DEPENDENCY_ARTIFACTS) != null) {
+            TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
+            dependencies.addAll(configuration.getDependencyResolverConfiguration().getExtraRequirements());
+        }
 
         dependencies.addAll(getTestDependencies());
 

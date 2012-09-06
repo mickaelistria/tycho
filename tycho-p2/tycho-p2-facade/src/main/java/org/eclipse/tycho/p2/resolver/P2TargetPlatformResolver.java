@@ -199,7 +199,11 @@ public class P2TargetPlatformResolver extends AbstractTargetPlatformResolver imp
             List<ReactorProject> reactorProjects) {
         TargetPlatformConfiguration configuration = TychoProjectUtils.getTargetPlatformConfiguration(project);
 
-        ExecutionEnvironment ee = projectTypes.get(project.getPackaging()).getExecutionEnvironment(project);
+        TychoProject tychoProject = projectTypes.get(project.getPackaging());
+        ExecutionEnvironment ee = null;
+        if (tychoProject != null) {
+            ee = tychoProject.getExecutionEnvironment(project);
+        }
 
         TargetPlatformBuilder tpBuilder = resolverFactory.createTargetPlatformBuilder(//
                 ee != null ? ee.getProfileName() : null, configuration.isDisableP2Mirrors());

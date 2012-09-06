@@ -50,14 +50,24 @@ public class DefaultTychoDependencyResolver implements TychoDependencyResolver {
     private Map<String, TychoProject> projectTypes;
 
     public void setupProject(MavenSession session, MavenProject project, ReactorProject reactorProject) {
-        AbstractTychoProject dr = (AbstractTychoProject) projectTypes.get(project.getPackaging());
-        if (dr == null) {
+        boolean lazy = true;
+        setupProject(session, project, reactorProject, lazy);
+    }
+
+    public void setupProject(MavenSession session, MavenProject project, ReactorProject reactorProject, boolean lazy) {
+        if (isProjectAlreadySetup(project)) {
             return;
         }
 
-        // generic Eclipse/OSGi metadata
-
-        dr.setupProject(session, project);
+        AbstractTychoProject dr = (AbstractTychoProject) projectTypes.get(project.getPackaging());
+        if (dr != null) {
+            // generic Eclipse/OSGi metadata
+            dr.setupProject(session, project);
+        } else if (lazy) {
+            // by default, return
+            // if lazy is set to false, will process Tycho on non-Tycho artifacts
+            return;
+        }
 
         // p2 metadata
 
@@ -74,6 +84,10 @@ public class DefaultTychoDependencyResolver implements TychoDependencyResolver {
         TargetPlatformResolver resolver = targetPlatformResolverLocator.lookupPlatformResolver(project);
 
         resolver.setupProjects(session, project, reactorProject);
+    }
+
+    private boolean isProjectAlreadySetup(MavenProject project) {
+        return project.getContextValue(TychoConstants.CTX_TARGET_PLATFORM_CONFIGURATION) != null;
     }
 
     public void resolveProject(MavenSession session, MavenProject project, List<ReactorProject> reactorProjects) {
